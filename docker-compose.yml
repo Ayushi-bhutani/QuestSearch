@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./questsearch-backend
+    container_name: questsearch-backend
+    environment:
+      - MONGO_URI=mongodb://localhost:27017/questions_db/questions_col/
+    ports:
+      - "50051:50051"
+    networks:
+      - questsearch-network
+
+  envoy:
+    image: envoyproxy/envoy:v1.22.0
+    container_name: envoy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    networks:
+      - questsearch-network
+
+  frontend:
+    build:
+      context: ./questsearch-frontend
+    container_name: questsearch-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - questsearch-network
+
+networks:
+  questsearch-network:
+    driver: bridge
